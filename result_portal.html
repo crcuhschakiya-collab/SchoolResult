@@ -4,27 +4,145 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UHS Chakiya Result Portal 2026</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         /* Custom styles for the marksheet printout */
         @media print {
+            html, body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 0;
+            }
             body * { visibility: hidden; }
             #resultPage, #resultPage * { visibility: visible; }
-            #resultPage { position: absolute; left: 0; top: 0; width: 100%; padding: 0; margin: 0; }
+            #resultPage {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 0;
+                margin: 0;
+                min-height: auto;
+            }
             .no-print { display: none !important; }
+            #marksheet-capture {
+                width: 210mm;
+                min-height: 297mm;
+                padding: 10mm;
+                border: none;
+                box-shadow: none;
+                page-break-after: avoid;
+                page-break-inside: avoid;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
         }
         
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #1a237e;
+            color: white;
+            padding: 1rem 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-main {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            min-width: 0;
+        }
+
+        .logo-circle {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #fb8c00;
+            flex-shrink: 0;
+        }
+
+        .school-info h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .school-info p {
+            margin: 2px 0 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        footer {
+            background: #222;
+            color: #bbb;
+            padding: 30px 5%;
+            text-align: center;
+            font-size: 0.9rem;
+            border-top: 4px solid #fb8c00;
+        }
+
+        .footer-links {
+            margin-bottom: 15px;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+        }
+
+        .footer-links a:hover {
+            color: #fb8c00;
+        }
+
+        #resultPage {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0;
+        }
+
         #marksheet-capture {
             font-family: 'Times New Roman', Times, serif;
             color: black;
             background: white;
             padding: 15mm;
-            width: 210mm; /* A4 Width */
-            min-height: 297mm; /* A4 Height */
+            width: min(210mm, 100%);
+            max-width: 100%;
+            min-height: auto;
             margin: auto;
             border: 1px solid #ccc;
             position: relative;
+            box-sizing: border-box;
         }
 
         .watermark {
@@ -38,11 +156,49 @@
             pointer-events: none;
         }
 
-        .bseb-table { width: 100%; border-collapse: collapse; margin-top: 10px; z-index: 10; position: relative; }
-        .bseb-table th, .bseb-table td { border: 1px solid black; padding: 6px; text-align: center; font-size: 14px; }
+        .bseb-table { width: 100%; border-collapse: collapse; margin-top: 10px; z-index: 10; position: relative; table-layout: fixed; }
+        .bseb-table th, .bseb-table td { border: 1px solid black; padding: 6px; text-align: center; font-size: 14px; white-space: normal; word-break: break-word; }
         .bseb-table th { background-color: #f2f2f2; }
-        .details-table td { padding: 8px; border: 1px solid #eee; text-align: left; }
+        .details-table { width: 100%; border-collapse: collapse; }
+        .details-table td { padding: 8px; border: 1px solid #eee; text-align: left; word-break: break-word; }
         .details-table .label { font-weight: bold; width: 35%; background-color: #f9f9f9; }
+
+        @media screen and (max-width: 940px) {
+            #resultPage { padding: 12px; }
+            #marksheet-capture { padding: 12px; }
+            .bseb-table th, .bseb-table td { font-size: 11px; padding: 5px; }
+            .details-table td { font-size: 12px; }
+            .details-table .label { width: auto; }
+            .watermark { font-size: 50pt; }
+            .max-w-7xl { max-width: 100% !important; }
+            .flex.items-center.justify-between.no-print { flex-wrap: wrap; gap: 10px; }
+            .flex.items-center.gap-3 { flex-wrap: wrap; justify-content: flex-end; }
+            #searchPage .bg-white { padding: 20px; }
+        }
+
+        @media screen and (max-width: 680px) {
+            #marksheet-capture { padding: 10px; }
+            .bseb-table, .details-table { font-size: 10px; }
+            .bseb-table th, .bseb-table td { padding: 4px; }
+            .details-table td { display: block; width: 100%; }
+            .details-table tr { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+            .details-table .label { width: auto; }
+            .watermark { font-size: 40pt; }
+        }
+
+        @media print {
+            html, body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 0;
+            }
+            #marksheet-capture { width: 210mm; min-height: 297mm; padding: 10mm; margin: 0; border: none; box-shadow: none; }
+            .max-w-7xl { max-width: 100% !important; }
+            .flex.items-center.justify-between.no-print { display: none !important; }
+            .no-print { display: none !important; }
+            @page { size: A4 portrait; margin: 5mm; }
+        }
     </style>
 </head>
 <body class="bg-gray-100 font-sans">
@@ -151,7 +307,6 @@
             <div class="mt-12 text-xs text-gray-600 border-t pt-4 leading-relaxed">
                 <p class="font-bold text-center mb-2">Abbreviation used:</p>
                 <p class="text-center">F->Fail, ABS->Absent, INT->Internal, PRAC->Practical, *->Grace, #->Greater Marks of Last Year</p>
-                <p class="italic mt-4 text-center text-gray-500">Note: This is a web-generated copy for immediate information and cannot be treated as an original marksheet.</p>
             </div>
         </div>
     </div>
