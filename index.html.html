@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UHS Chakiya Result Portal 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        /* Custom styles for the marksheet printout */
+        @media print {
+            body * { visibility: hidden; }
+            #resultPage, #resultPage * { visibility: visible; }
+            #resultPage { position: absolute; left: 0; top: 0; width: 100%; padding: 0; margin: 0; }
+            .no-print { display: none !important; }
+        }
+        
+        #marksheet-capture {
+            font-family: 'Times New Roman', Times, serif;
+            color: black;
+            background: white;
+            padding: 15mm;
+            width: 210mm; /* A4 Width */
+            min-height: 297mm; /* A4 Height */
+            margin: auto;
+            border: 1px solid #ccc;
+            position: relative;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 80pt;
+            color: rgba(200, 200, 200, 0.2);
+            font-weight: bold;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .bseb-table { width: 100%; border-collapse: collapse; margin-top: 10px; z-index: 10; position: relative; }
+        .bseb-table th, .bseb-table td { border: 1px solid black; padding: 6px; text-align: center; font-size: 14px; }
+        .bseb-table th { background-color: #f2f2f2; }
+        .details-table td { padding: 8px; border: 1px solid #eee; text-align: left; }
+        .details-table .label { font-weight: bold; width: 35%; background-color: #f9f9f9; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div id="searchPage" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white p-8 md:p-12 rounded-2xl shadow-xl w-full max-w-lg border-t-4 border-orange-500">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl font-bold text-gray-900">UHS Chakiya</h1>
+                <p class="text-orange-600 font-semibold uppercase tracking-wider text-sm">Result Portal 2026</p>
+                <p class="text-gray-500 mt-2">Annual Examination Class 9th 2026</p>
+            </div>
+
+            <form id="searchForm" class="space-y-6">
+                <div>
+                    <label for="rollCode" class="block text-sm font-medium text-gray-700">Roll Code</label>
+                    <input type="text" id="rollCode" name="rollCode" required placeholder="Enter 5 digit Roll Code" 
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-orange-500 focus:border-orange-500 text-lg">
+                </div>
+                <div>
+                    <label for="rollNo" class="block text-sm font-medium text-gray-700">Roll Number</label>
+                    <input type="text" id="rollNo" name="rollNo" required placeholder="Enter Roll Number" 
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-orange-500 focus:border-orange-500 text-lg">
+                </div>
+                <button type="submit" 
+                    class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-xl transition duration-150 shadow-md hover:shadow-lg text-lg">
+                    Search Result
+                </button>
+            </form>
+            <p id="searchError" class="text-red-600 text-center mt-6 hidden font-medium"></p>
+        </div>
+    </div>
+
+    <div id="resultPage" class="hidden min-h-screen p-4 md:p-8 bg-gray-50">
+        <div class="max-w-7xl mx-auto mb-6 flex items-center justify-between no-print bg-white p-4 rounded-xl shadow border">
+            <button onclick="goBack()" class="flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+                Back to Search
+            </button>
+            <div class="flex items-center gap-3">
+                <button onclick="window.print()" class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 px-5 py-2.5 rounded-lg font-semibold text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.56 0a48.536 48.536 0 00-10.56 0m10.56 0V3.75A1.875 1.875 0 0014.25 2.25h-4.5A1.875 1.875 0 007.875 3.75V6.75m6.75 0V3.75m-6.75 0V6.75" />
+                    </svg>
+                    Print
+                </button>
+                <button onclick="downloadPDF()" class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-lg font-semibold text-sm shadow">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                    Download PDF
+                </button>
+            </div>
+        </div>
+
+        <div id="marksheet-capture" class="shadow-2xl border-2 border-gray-200 rounded-sm">
+            <div class="watermark">WEB COPY</div>
+            
+            <div class="text-center border-b-2 border-black pb-4 mb-6 relative">
+                <h2 class="text-3xl font-bold">UCHCH MADHYAMIK VIDYALAYA CHAKIYA</h2>
+                <h3 class="text-xl font-semibold mt-1">UDISE - 10140512802</h3>
+                <h3 class="text-2xl font-bold uppercase mt-2 tracking-wide">Annual Examination Class 9th - 2026</h3>
+            </div>
+
+            <table class="w-full details-table mb-6 border-collapse">
+                <tr><td class="label">Roll Code</td><td id="resRollCode" class="font-bold">51881</td></tr>
+                <tr><td class="label">Roll Number</td><td id="resRollNo" class="font-bold text-lg"></td></tr>
+                <tr><td class="label">Registration No. & Year</td><td id="resRegNo"></td></tr>
+                <tr><td class="label">Student Name</td><td id="resName" class="font-bold text-xl uppercase text-blue-900"></td></tr>
+                <tr><td class="label">Mother's Name</td><td id="resMName" class="uppercase"></td></tr>
+                <tr><td class="label">Father's Name</td><td id="resFName" class="uppercase"></td></tr>
+                <tr><td class="label">Date of Birth</td><td id="resDOB"></td></tr>
+                <tr><td class="label">School Name</td><td class="uppercase">UCHCH MADHYAMIK VIDYALAYA Chakiya, KURHANI</td></tr>
+            </table>
+
+            <div class="bg-orange-400 text-white text-center font-bold py-2 px-4 border border-black text-lg">Marks Details</div>
+            <table class="bseb-table">
+                <thead>
+                    <tr>
+                        <th class="text-left px-4">Subject</th>
+                        <th>F.Marks</th>
+                        <th>P.Marks</th>
+                        <th>Theory</th>
+                        <th>INT/PRAC</th>
+                        <th>Subject Total</th>
+                    </tr>
+                </thead>
+                <tbody id="marksBody">
+                    </tbody>
+                <tfoot>
+                    <tr class="font-bold bg-gray-100 text-lg">
+                        <td colspan="1" class="text-left px-4">Result/Division:</td>
+                        <td colspan="2" id="resDivision" class="text-left px-4 text-green-700 uppercase"></td>
+                        <td colspan="2" class="text-right px-4">Total Marks:</td>
+                        <td id="resTotalMarks" class="text-xl"></td>
+                    </tr>
+                    <tr class="font-bold text-sm">
+                        <td colspan="4"></td>
+                        <td class="text-right px-4">Percentage:</td>
+                        <td id="resPercentage"></td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <div class="mt-12 text-xs text-gray-600 border-t pt-4 leading-relaxed">
+                <p class="font-bold text-center mb-2">Abbreviation used:</p>
+                <p class="text-center">F->Fail, ABS->Absent, INT->Internal, PRAC->Practical, *->Grace, #->Greater Marks of Last Year</p>
+                <p class="italic mt-4 text-center text-gray-500">Note: This is a web-generated copy for immediate information and cannot be treated as an original marksheet.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. PASTE YOUR CONVERTED JSON DATA HERE
+        // ==========================================
+        const resultData = [{
+  "ROLL.NO." : 2,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "VARUN KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "AJAY KUMAR",
+  "DATE OF BIRTH" : "26-Jul-2010",
+  "MIL" : 84,
+  "SIL" : 79,
+  "MATH" : 90,
+  "SCI" : 83,
+  "SSC" : 87,
+  "ENG" : 53,
+  "AGGREGATE" : 423,
+  "TOTAL PERCENTAGE" : 84.6,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 1,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "ARUSHI RAY",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "RANJEET KUMAR",
+  "DATE OF BIRTH" : "18-Jan-2012",
+  "MIL" : 90,
+  "SIL" : 72,
+  "MATH" : 87,
+  "SCI" : 69,
+  "SSC" : 87,
+  "ENG" : 60,
+  "AGGREGATE" : 405,
+  "TOTAL PERCENTAGE" : 81,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 17,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "KHUSHI KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "LALBABU DAS",
+  "DATE OF BIRTH" : "03-Feb-2011",
+  "MIL" : 81,
+  "SIL" : 77,
+  "MATH" : 78,
+  "SCI" : 77,
+  "SSC" : 87,
+  "ENG" : 56,
+  "AGGREGATE" : 400,
+  "TOTAL PERCENTAGE" : 80,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 9,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "LAKSHMI KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "JOGINDAR DAS",
+  "DATE OF BIRTH" : "03-Apr-2011",
+  "MIL" : 75,
+  "SIL" : 70,
+  "MATH" : 66,
+  "SCI" : 69,
+  "SSC" : 74,
+  "ENG" : 42,
+  "AGGREGATE" : 354,
+  "TOTAL PERCENTAGE" : 70.8,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 38,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "TANYA KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "CHANDRAMANI SINGH",
+  "DATE OF BIRTH" : "08-Oct-2010",
+  "MIL" : 46,
+  "SIL" : 69,
+  "MATH" : 58,
+  "SCI" : 66,
+  "SSC" : 88,
+  "ENG" : 59,
+  "AGGREGATE" : 327,
+  "TOTAL PERCENTAGE" : 65.4,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 29,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "ANSHU KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "OM PRAKASH KUMAR GUPTA",
+  "DATE OF BIRTH" : "14-Feb-2012",
+  "MIL" : 69,
+  "SIL" : 59,
+  "MATH" : 47,
+  "SCI" : 75,
+  "SSC" : 68,
+  "ENG" : 69,
+  "AGGREGATE" : 318,
+  "TOTAL PERCENTAGE" : 63.6,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 45,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "NISHA KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "SANJEET SINGH",
+  "DATE OF BIRTH" : "02-Oct-2011",
+  "MIL" : 76,
+  "SIL" : 61,
+  "MATH" : 53,
+  "SCI" : 48,
+  "SSC" : 77,
+  "ENG" : 53,
+  "AGGREGATE" : 315,
+  "TOTAL PERCENTAGE" : 63,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 12,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "SIMRAN SINGH",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "MANISH KUMAR",
+  "DATE OF BIRTH" : "06-Sep-2009",
+  "MIL" : 71,
+  "SIL" : 61,
+  "MATH" : 55,
+  "SCI" : 51,
+  "SSC" : 72,
+  "ENG" : 55,
+  "AGGREGATE" : 310,
+  "TOTAL PERCENTAGE" : 62,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 15,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "SHIVAM KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "RAJ KUMAR",
+  "DATE OF BIRTH" : "21-Nov-2011",
+  "MIL" : 59,
+  "SIL" : 58,
+  "MATH" : 67,
+  "SCI" : 48,
+  "SSC" : 72,
+  "ENG" : 35,
+  "AGGREGATE" : 304,
+  "TOTAL PERCENTAGE" : 60.8,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 18,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "ADARSH KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "RANJEET PANDIT",
+  "DATE OF BIRTH" : "23-Jan-2010",
+  "MIL" : 68,
+  "SIL" : 39,
+  "MATH" : 64,
+  "SCI" : 59,
+  "SSC" : 74,
+  "ENG" : 32,
+  "AGGREGATE" : 304,
+  "TOTAL PERCENTAGE" : 60.8,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 67,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "SACHIN KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "RAMESH RAM",
+  "DATE OF BIRTH" : "01-Jan-2010",
+  "MIL" : 55,
+  "SIL" : 65,
+  "MATH" : 52,
+  "SCI" : 71,
+  "SSC" : 51,
+  "ENG" : 73,
+  "AGGREGATE" : 294,
+  "TOTAL PERCENTAGE" : 58.8,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 7,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "CHANDANI KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "ABODHESH DAS",
+  "DATE OF BIRTH" : "17-Oct-2010",
+  "MIL" : 65,
+  "SIL" : 52,
+  "MATH" : 45,
+  "SCI" : 56,
+  "SSC" : 69,
+  "ENG" : 46,
+  "AGGREGATE" : 287,
+  "TOTAL PERCENTAGE" : 57.4,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 39,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "ISHAN KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "JITESH KUMAR",
+  "DATE OF BIRTH" : "12-Jan-2012",
+  "MIL" : 68,
+  "SIL" : 40,
+  "MATH" : 53,
+  "SCI" : 70,
+  "SSC" : 55,
+  "ENG" : 59,
+  "AGGREGATE" : 286,
+  "TOTAL PERCENTAGE" : 57.2,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 36,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "VICKY KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "LAKHINDRA RAM",
+  "DATE OF BIRTH" : "15-Jun-2011",
+  "MIL" : 61,
+  "SIL" : 42,
+  "MATH" : 64,
+  "SCI" : 59,
+  "SSC" : 59,
+  "ENG" : 34,
+  "AGGREGATE" : 285,
+  "TOTAL PERCENTAGE" : 57,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 22,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "SONAM KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "DHARMENDRA RAM",
+  "DATE OF BIRTH" : "15-Feb-2013",
+  "MIL" : 59,
+  "SIL" : 57,
+  "MATH" : 44,
+  "SCI" : 50,
+  "SSC" : 62,
+  "ENG" : 32,
+  "AGGREGATE" : 272,
+  "TOTAL PERCENTAGE" : 54.4,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 6,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "PRIYA RANI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "SANJAY KUMAR",
+  "DATE OF BIRTH" : "16-Feb-2012",
+  "MIL" : 58,
+  "SIL" : 54,
+  "MATH" : 50,
+  "SCI" : 53,
+  "SSC" : 55,
+  "ENG" : 30,
+  "AGGREGATE" : 270,
+  "TOTAL PERCENTAGE" : 54,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 44,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "CHANCHAL KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "SUJEET KUMAR SINGH",
+  "DATE OF BIRTH" : "06-Dec-2011",
+  "MIL" : 50,
+  "SIL" : 53,
+  "MATH" : 41,
+  "SCI" : 46,
+  "SSC" : 73,
+  "ENG" : 34,
+  "AGGREGATE" : 263,
+  "TOTAL PERCENTAGE" : 52.6,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 14,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "ADITYA RAJ",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "NAND KISHOR SAH",
+  "DATE OF BIRTH" : "12-Feb-2012",
+  "MIL" : 52,
+  "SIL" : 36,
+  "MATH" : 48,
+  "SCI" : 64,
+  "SSC" : 60,
+  "ENG" : 37,
+  "AGGREGATE" : 260,
+  "TOTAL PERCENTAGE" : 52,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 43,
+  "REGISTRATION NO.&YEAR" : " ",
+  "STUDENT NAME" : "VIJAY KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "RAVINDRA DAS",
+  "DATE OF BIRTH" : "06-Aug-2010",
+  "MIL" : 61,
+  "SIL" : 45,
+  "MATH" : 40,
+  "SCI" : 54,
+  "SSC" : 56,
+  "ENG" : 30,
+  "AGGREGATE" : 256,
+  "TOTAL PERCENTAGE" : 51.2,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 30,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "ADITYA RAJ",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "CHANDAN KUMAR",
+  "DATE OF BIRTH" : "02-Feb-2009",
+  "MIL" : 52,
+  "SIL" : 36,
+  "MATH" : 50,
+  "SCI" : 59,
+  "SSC" : 54,
+  "ENG" : 30,
+  "AGGREGATE" : 251,
+  "TOTAL PERCENTAGE" : 50.2,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 46,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "RUNJHUN KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "VIRENDRA SINGH",
+  "DATE OF BIRTH" : "08-Mar-2011",
+  "MIL" : 56,
+  "SIL" : 49,
+  "MATH" : 36,
+  "SCI" : 53,
+  "SSC" : 54,
+  "ENG" : 48,
+  "AGGREGATE" : 248,
+  "TOTAL PERCENTAGE" : 49.6,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 13,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "ADARSH KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "MANISH KUMAR",
+  "DATE OF BIRTH" : "23-Oct-2011",
+  "MIL" : 53,
+  "SIL" : 46,
+  "MATH" : 34,
+  "SCI" : 58,
+  "SSC" : 56,
+  "ENG" : 34,
+  "AGGREGATE" : 247,
+  "TOTAL PERCENTAGE" : 49.4,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 25,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "GAYTRI KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "DINESH PANDIT",
+  "DATE OF BIRTH" : "28-Apr-2011",
+  "MIL" : 49,
+  "SIL" : 53,
+  "MATH" : 44,
+  "SCI" : 49,
+  "SSC" : 51,
+  "ENG" : 31,
+  "AGGREGATE" : 246,
+  "TOTAL PERCENTAGE" : 49.2,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 51,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "RAUNAK KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "CHANARDEEP SINGH",
+  "DATE OF BIRTH" : "01-May-2011",
+  "MIL" : 42,
+  "SIL" : 31,
+  "MATH" : 56,
+  "SCI" : 64,
+  "SSC" : 46,
+  "ENG" : 30,
+  "AGGREGATE" : 239,
+  "TOTAL PERCENTAGE" : 47.8,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 20,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "SAURAV KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "BIRENDRA KUMAR",
+  "DATE OF BIRTH" : "05-Feb-2010",
+  "MIL" : 51,
+  "SIL" : 37,
+  "MATH" : 48,
+  "SCI" : 54,
+  "SSC" : 48,
+  "ENG" : 36,
+  "AGGREGATE" : 238,
+  "TOTAL PERCENTAGE" : 47.6,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 41,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "RUPA KHATUN",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "MOHAMMAD KHUSH ALAM",
+  "DATE OF BIRTH" : "17-Jan-2011",
+  "MIL" : 51,
+  "SIL" : 57,
+  "MATH" : 32,
+  "SCI" : 44,
+  "SSC" : 53,
+  "ENG" : 30,
+  "AGGREGATE" : 237,
+  "TOTAL PERCENTAGE" : 47.4,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 8,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "VIKASH KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "AMARJIT KUMAR",
+  "DATE OF BIRTH" : "24-Feb-2011",
+  "MIL" : 45,
+  "SIL" : 63,
+  "MATH" : 34,
+  "SCI" : 38,
+  "SSC" : 46,
+  "ENG" : 46,
+  "AGGREGATE" : 226,
+  "TOTAL PERCENTAGE" : 45.2,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 21,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "SHAHABAJ ALAM",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "MD ANWAR",
+  "DATE OF BIRTH" : "12-Jun-2011",
+  "MIL" : 50,
+  "SIL" : 38,
+  "MATH" : 48,
+  "SCI" : 43,
+  "SSC" : 46,
+  "ENG" : 35,
+  "AGGREGATE" : 225,
+  "TOTAL PERCENTAGE" : 45,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 3,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "DANISH KHATOON",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "MD RUSTAM",
+  "DATE OF BIRTH" : "24-Apr-2010",
+  "MIL" : 42,
+  "SIL" : 51,
+  "MATH" : 36,
+  "SCI" : 44,
+  "SSC" : 43,
+  "ENG" : 32,
+  "AGGREGATE" : 216,
+  "TOTAL PERCENTAGE" : 43.2,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 55,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "SUMAN KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "KRIT RAM",
+  "DATE OF BIRTH" : "02-Apr-2011",
+  "MIL" : 44,
+  "SIL" : 46,
+  "MATH" : 30,
+  "SCI" : 41,
+  "SSC" : 50,
+  "ENG" : 57,
+  "AGGREGATE" : 211,
+  "TOTAL PERCENTAGE" : 42.2,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 64,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "PRASHANT RAJ",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : null,
+  "DATE OF BIRTH" : null,
+  "MIL" : 52,
+  "SIL" : 38,
+  "MATH" : 34,
+  "SCI" : 41,
+  "SSC" : 44,
+  "ENG" : 30,
+  "AGGREGATE" : 209,
+  "TOTAL PERCENTAGE" : 41.8,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 4,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "ANISHA KHATOON",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "MD MUSTUFA",
+  "DATE OF BIRTH" : "01-Jan-2010",
+  "MIL" : 34,
+  "SIL" : 37,
+  "MATH" : 30,
+  "SCI" : 46,
+  "SSC" : 40,
+  "ENG" : 30,
+  "AGGREGATE" : 187,
+  "TOTAL PERCENTAGE" : 37.4,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 19,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "NITIN KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "NARESH KUMAR RAI",
+  "DATE OF BIRTH" : null,
+  "MIL" : 49,
+  "SIL" : 30,
+  "MATH" : 35,
+  "SCI" : 30,
+  "SSC" : 36,
+  "ENG" : 30,
+  "AGGREGATE" : 180,
+  "TOTAL PERCENTAGE" : 36,
+  "REMARKS" : "P"
+},
+{
+  "ROLL.NO." : 34,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "SUDHANSHU KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "SHASHI RANJAN SINGH",
+  "DATE OF BIRTH" : "01-Mar-2007",
+  "MIL" : 43,
+  "SIL" : 66,
+  "MATH" : 25,
+  "SCI" : 54,
+  "SSC" : 50,
+  "ENG" : 52,
+  "AGGREGATE" : 238,
+  "TOTAL PERCENTAGE" : 47.6,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 61,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "RAGANI KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "SAKINDRA DAS",
+  "DATE OF BIRTH" : "11-Oct-2011",
+  "MIL" : 51,
+  "SIL" : 52,
+  "MATH" : 21,
+  "SCI" : 61,
+  "SSC" : 53,
+  "ENG" : 38,
+  "AGGREGATE" : 238,
+  "TOTAL PERCENTAGE" : 47.6,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 60,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "SONALI KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "AJAY SHARMA",
+  "DATE OF BIRTH" : "02-Mar-2011",
+  "MIL" : 47,
+  "SIL" : 46,
+  "MATH" : 25,
+  "SCI" : 47,
+  "SSC" : 50,
+  "ENG" : 39,
+  "AGGREGATE" : 215,
+  "TOTAL PERCENTAGE" : 43,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 49,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "NANDANI KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "MANOJ KUMAR SINGH",
+  "DATE OF BIRTH" : "01-Jan-2010",
+  "MIL" : 53,
+  "SIL" : 45,
+  "MATH" : 26,
+  "SCI" : 42,
+  "SSC" : 47,
+  "ENG" : 46,
+  "AGGREGATE" : 213,
+  "TOTAL PERCENTAGE" : 42.6,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 62,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "ANAMIKA KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "LATE PRAMOD DAS",
+  "DATE OF BIRTH" : "24-Mar-2011",
+  "MIL" : 51,
+  "SIL" : 43,
+  "MATH" : 20,
+  "SCI" : 45,
+  "SSC" : 47,
+  "ENG" : 50,
+  "AGGREGATE" : 206,
+  "TOTAL PERCENTAGE" : 41.2,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 58,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "ADARSH KUMAR SINGH",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "AJIT SINGH",
+  "DATE OF BIRTH" : "01-Jan-2009",
+  "MIL" : 42,
+  "SIL" : 36,
+  "MATH" : 26,
+  "SCI" : 52,
+  "SSC" : 45,
+  "ENG" : 30,
+  "AGGREGATE" : 201,
+  "TOTAL PERCENTAGE" : 40.2,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 16,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "ARCHANA KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "RAKESH DAS",
+  "DATE OF BIRTH" : "22-Jul-2010",
+  "MIL" : 43,
+  "SIL" : 49,
+  "MATH" : 19,
+  "SCI" : 34,
+  "SSC" : 46,
+  "ENG" : 48,
+  "AGGREGATE" : 191,
+  "TOTAL PERCENTAGE" : 38.2,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 32,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "ANGURI KHATUN",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "MOHAMMAD KURMAN",
+  "DATE OF BIRTH" : "10-Mar-2011",
+  "MIL" : 33,
+  "SIL" : 33,
+  "MATH" : 27,
+  "SCI" : 43,
+  "SSC" : 53,
+  "ENG" : 46,
+  "AGGREGATE" : 189,
+  "TOTAL PERCENTAGE" : 37.8,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 50,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "VISHAKHA KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "AJEET THAKUR",
+  "DATE OF BIRTH" : "24-Dec-2010",
+  "MIL" : 24,
+  "SIL" : 52,
+  "MATH" : 19,
+  "SCI" : 51,
+  "SSC" : 41,
+  "ENG" : 36,
+  "AGGREGATE" : 187,
+  "TOTAL PERCENTAGE" : 37.4,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 33,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "SHAHIL KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "SHASHI RANJAN SINGH",
+  "DATE OF BIRTH" : "04-Nov-2008",
+  "MIL" : 31,
+  "SIL" : 26,
+  "MATH" : 21,
+  "SCI" : 52,
+  "SSC" : 52,
+  "ENG" : 31,
+  "AGGREGATE" : 182,
+  "TOTAL PERCENTAGE" : 36.4,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 24,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "SAHIL KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "PRAMOD THAKUR",
+  "DATE OF BIRTH" : "25-Oct-2011",
+  "MIL" : 27,
+  "SIL" : 56,
+  "MATH" : 31,
+  "SCI" : 34,
+  "SSC" : 31,
+  "ENG" : 33,
+  "AGGREGATE" : 179,
+  "TOTAL PERCENTAGE" : 35.8,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 27,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "ABHISHEK KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "NAGINA DAS",
+  "DATE OF BIRTH" : "12-Sep-2010",
+  "MIL" : 25,
+  "SIL" : 48,
+  "MATH" : 27,
+  "SCI" : 35,
+  "SSC" : 44,
+  "ENG" : 33,
+  "AGGREGATE" : 179,
+  "TOTAL PERCENTAGE" : 35.8,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 37,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "RANI KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "HARIMOHAN DAS",
+  "DATE OF BIRTH" : "01-Apr-2011",
+  "MIL" : 44,
+  "SIL" : 41,
+  "MATH" : 16,
+  "SCI" : 42,
+  "SSC" : 35,
+  "ENG" : 53,
+  "AGGREGATE" : 178,
+  "TOTAL PERCENTAGE" : 35.6,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 57,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "LUSI KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "GARIBAN SHARMA",
+  "DATE OF BIRTH" : "12-May-2011",
+  "MIL" : 27,
+  "SIL" : 47,
+  "MATH" : 27,
+  "SCI" : 33,
+  "SSC" : 37,
+  "ENG" : 41,
+  "AGGREGATE" : 171,
+  "TOTAL PERCENTAGE" : 34.2,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 10,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "DEEPMALA KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "SHIVJI DAS",
+  "DATE OF BIRTH" : "01-Mar-2011",
+  "MIL" : 36,
+  "SIL" : 30,
+  "MATH" : 25,
+  "SCI" : 37,
+  "SSC" : 39,
+  "ENG" : 36,
+  "AGGREGATE" : 167,
+  "TOTAL PERCENTAGE" : 33.4,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 40,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "DHANRAJ KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "CHANCHAL KUMAR",
+  "DATE OF BIRTH" : "02-Aug-2011",
+  "MIL" : 38,
+  "SIL" : 24,
+  "MATH" : 23,
+  "SCI" : 48,
+  "SSC" : 30,
+  "ENG" : 30,
+  "AGGREGATE" : 163,
+  "TOTAL PERCENTAGE" : 32.6,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 23,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "SANNI KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "SANJAY SHARMA",
+  "DATE OF BIRTH" : "15-Jul-2011",
+  "MIL" : 32,
+  "SIL" : 32,
+  "MATH" : 15,
+  "SCI" : 39,
+  "SSC" : 42,
+  "ENG" : 42,
+  "AGGREGATE" : 160,
+  "TOTAL PERCENTAGE" : 32,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 35,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "MOHAMMAD ALTAMASH",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "MOHAMMAD ABBAS",
+  "DATE OF BIRTH" : "30-Sep-2011",
+  "MIL" : 26,
+  "SIL" : 28,
+  "MATH" : 25,
+  "SCI" : 41,
+  "SSC" : 34,
+  "ENG" : 35,
+  "AGGREGATE" : 154,
+  "TOTAL PERCENTAGE" : 30.8,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 48,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "RAUNAK KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "RAKESH KUMAR",
+  "DATE OF BIRTH" : "28-Feb-2010",
+  "MIL" : 8,
+  "SIL" : 30,
+  "MATH" : 27,
+  "SCI" : 30,
+  "SSC" : 52,
+  "ENG" : 30,
+  "AGGREGATE" : 147,
+  "TOTAL PERCENTAGE" : 29.4,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 56,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "RAUSHAN KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "RANDHIR DAS",
+  "DATE OF BIRTH" : "12-Aug-2011",
+  "MIL" : 16,
+  "SIL" : 28,
+  "MATH" : 26,
+  "SCI" : 32,
+  "SSC" : 35,
+  "ENG" : 30,
+  "AGGREGATE" : 137,
+  "TOTAL PERCENTAGE" : 27.4,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 5,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "MOHAMMAD WARIS",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "MOHAMMAD RAHIS",
+  "DATE OF BIRTH" : "07-Sep-2011",
+  "MIL" : 30,
+  "SIL" : 32,
+  "MATH" : 7,
+  "SCI" : 30,
+  "SSC" : 30,
+  "ENG" : 32,
+  "AGGREGATE" : 129,
+  "TOTAL PERCENTAGE" : 25.8,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 28,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "PRINCE RAJ",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "ARJUN DAS",
+  "DATE OF BIRTH" : "23-Aug-2011",
+  "MIL" : 22,
+  "SIL" : 20,
+  "MATH" : 20,
+  "SCI" : 30,
+  "SSC" : 36,
+  "ENG" : 30,
+  "AGGREGATE" : 128,
+  "TOTAL PERCENTAGE" : 25.6,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 42,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "RAUSHAN KHATUN",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "NOOR MOHAMMAD",
+  "DATE OF BIRTH" : "20-Nov-2010",
+  "MIL" : 17,
+  "SIL" : 21,
+  "MATH" : 22,
+  "SCI" : 32,
+  "SSC" : 34,
+  "ENG" : 30,
+  "AGGREGATE" : 126,
+  "TOTAL PERCENTAGE" : 25.2,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 31,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "NAINCY KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "SANJAY RAM",
+  "DATE OF BIRTH" : "01-Jan-2010",
+  "MIL" : 17,
+  "SIL" : 19,
+  "MATH" : 20,
+  "SCI" : 27,
+  "SSC" : 33,
+  "ENG" : 30,
+  "AGGREGATE" : 116,
+  "TOTAL PERCENTAGE" : 23.2,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 26,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "AVINASH KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "SHAMBHU KUMAR DAS",
+  "DATE OF BIRTH" : "13-Sep-2011",
+  "MIL" : 20,
+  "SIL" : 16,
+  "MATH" : 15,
+  "SCI" : 31,
+  "SSC" : 30,
+  "ENG" : 30,
+  "AGGREGATE" : 112,
+  "TOTAL PERCENTAGE" : 22.4,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 65,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "RUPESH KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "HARENDRA DAS",
+  "DATE OF BIRTH" : "04-Apr-2010",
+  "MIL" : 16,
+  "SIL" : 19,
+  "MATH" : 11,
+  "SCI" : 35,
+  "SSC" : 30,
+  "ENG" : 30,
+  "AGGREGATE" : 111,
+  "TOTAL PERCENTAGE" : 22.2,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 63,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "DIPASHA KUMARI",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "HUKUMCHANDRA SHARMA",
+  "DATE OF BIRTH" : "23-Aug-2011",
+  "MIL" : 15,
+  "SIL" : 28,
+  "MATH" : 12,
+  "SCI" : 22,
+  "SSC" : 30,
+  "ENG" : 30,
+  "AGGREGATE" : 107,
+  "TOTAL PERCENTAGE" : 21.4,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 47,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "ABHISHEK RAJ",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "MAHESHWAR RAM",
+  "DATE OF BIRTH" : "28-Apr-2011",
+  "MIL" : 11,
+  "SIL" : 16,
+  "MATH" : 18,
+  "SCI" : 26,
+  "SSC" : 30,
+  "ENG" : 30,
+  "AGGREGATE" : 101,
+  "TOTAL PERCENTAGE" : 20.2,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 66,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "AYUSH RAJ",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "DILIP CHAUDHRY",
+  "DATE OF BIRTH" : "06-Aug-2010",
+  "MIL" : 16,
+  "SIL" : 0,
+  "MATH" : 9,
+  "SCI" : 0,
+  "SSC" : 30,
+  "ENG" : 0,
+  "AGGREGATE" : 55,
+  "TOTAL PERCENTAGE" : 11,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 52,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "ANKIT KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "DHANANJAY SINGH",
+  "DATE OF BIRTH" : "07-Jun-2011",
+  "MIL" : 23,
+  "SIL" : 0,
+  "MATH" : 0,
+  "SCI" : 0,
+  "SSC" : 30,
+  "ENG" : 0,
+  "AGGREGATE" : 53,
+  "TOTAL PERCENTAGE" : 10.6,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 53,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "ANSHIK KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "ARJUN PASWAN",
+  "DATE OF BIRTH" : "16-Apr-2011",
+  "MIL" : 15,
+  "SIL" : 0,
+  "MATH" : 0,
+  "SCI" : 0,
+  "SSC" : 30,
+  "ENG" : 0,
+  "AGGREGATE" : 45,
+  "TOTAL PERCENTAGE" : 9,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 11,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "ROHIT KUMAR",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "DINESH DAS",
+  "DATE OF BIRTH" : "01-Jan-2008",
+  "MIL" : 0,
+  "SIL" : 0,
+  "MATH" : 0,
+  "SCI" : 0,
+  "SSC" : 0,
+  "ENG" : 0,
+  "AGGREGATE" : 0,
+  "TOTAL PERCENTAGE" : 0,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 54,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : null,
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : null,
+  "DATE OF BIRTH" : null,
+  "MIL" : 0,
+  "SIL" : 0,
+  "MATH" : 0,
+  "SCI" : 0,
+  "SSC" : 0,
+  "ENG" : 0,
+  "AGGREGATE" : 0,
+  "TOTAL PERCENTAGE" : 0,
+  "REMARKS" : "F"
+},
+{
+  "ROLL.NO." : 59,
+  "REGISTRATION NO.&YEAR" : null,
+  "STUDENT NAME" : "ADITYA RAJ",
+  "MOTHER'S NAME" : null,
+  "FATHER'S NAME" : "DABLU PASWAN",
+  "DATE OF BIRTH" : "24-Jan-2012",
+  "MIL" : 0,
+  "SIL" : 0,
+  "MATH" : 0,
+  "SCI" : 0,
+  "SSC" : 0,
+  "ENG" : 0,
+  "AGGREGATE" : 0,
+  "TOTAL PERCENTAGE" : 0,
+  "REMARKS" : "F"
+}];
+        // ==========================================
+
+
+        // Page elements
+        const searchPage = document.getElementById('searchPage');
+        const resultPage = document.getElementById('resultPage');
+        const searchForm = document.getElementById('searchForm');
+        const searchError = document.getElementById('searchError');
+
+        // Handle Search Form Submission
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            searchError.classList.add('hidden');
+            
+            const rollCode = document.getElementById('rollCode').value.trim();
+            const rollNo = parseInt(document.getElementById('rollNo').value.trim());
+
+            // 1. Validate Roll Code (UHS Chakiya is 51881)
+            if (rollCode !== '51881') {
+                showError("Invalid Roll Code. This portal is only for UHS Chakiya (51881).");
+                return;
+            }
+
+            // 2. Search for the student in the JSON data
+            const student = resultData.find(s => s['ROLL.NO.'] === rollNo);
+
+            if (student) {
+                // 3. Populate and show the result page
+                populateResultPage(student);
+                searchPage.classList.add('hidden');
+                resultPage.classList.remove('hidden');
+                window.scrollTo(0, 0); // Scroll to top
+            } else {
+                showError("Result not found for the entered Roll Number. Please check and try again.");
+            }
+        });
+
+        function showError(message) {
+            searchError.innerText = message;
+            searchError.classList.remove('hidden');
+        }
+
+        function goBack() {
+            resultPage.classList.add('hidden');
+            searchPage.classList.remove('hidden');
+            searchForm.reset();
+        }
+
+        function populateResultPage(s) {
+            // Personal Details
+            document.getElementById('resRollNo').innerText = s['ROLL.NO.'];
+            document.getElementById('resRegNo').innerText = s['REGISTRATION NO.&YEAR'] || '---';
+            document.getElementById('resName').innerText = s['STUDENT NAME'];
+            document.getElementById('resMName').innerText = s["MOTHER'S NAME"] || '---';
+            document.getElementById('resFName').innerText = s["FATHER'S NAME"] || '---';
+            document.getElementById('resDOB').innerText = s['DATE OF BIRTH'] || '---';
+
+            // Marks Table
+            const marksBody = document.getElementById('marksBody');
+            marksBody.innerHTML = ''; // Clear existing
+
+            const subjects = [
+                { name: 'M.I.L. HINDI', theory: s['MIL'], prac: '-' },
+                { name: 'S.I.L. SANSKRIT', theory: s['SIL'], prac: '-' },
+                { name: 'MATHEMATICS', theory: s['MATH'], prac: '-' },
+                { name: 'SCIENCE', theory: s['SCI'], isSci: true }, // Science has practical split
+                { name: 'SOCIAL SCIENCE', theory: s['SSC'], isSci: true }, // SSC has practical split
+                { name: 'ENGLISH', theory: s['ENG'], prac: '-' }
+            ];
+
+            subjects.forEach(sub => {
+                let theoryMarks = sub.theory || 0;
+                let pracMarks = sub.prac || '-';
+                
+                // If it's Science/SSC, we simulate the standard 80/20 split visually,
+                // as your Excel file only provided a single total value.
+                if (sub.isSci && theoryMarks > 20) {
+                    pracMarks = 20; // Standard practical marks
+                    theoryMarks = theoryMarks - 20; // Remaining theory marks
+                }
+
+                marksBody.innerHTML += `
+                    <tr>
+                        <td class="text-left font-bold px-4">${sub.name}</td>
+                        <td>100</td>
+                        <td>030</td>
+                        <td>${String(theoryMarks).padStart(3, '0')}</td>
+                        <td>${pracMarks === '-' ? '-' : String(pracMarks).padStart(3, '0')}</td>
+                        <td class="font-bold">${String(sub.theory || 0).padStart(3, '0')}</td>
+                    </tr>
+                `;
+            });
+
+            // Summary
+            document.getElementById('resTotalMarks').innerText = s['AGGREGATE'];
+            document.getElementById('resDivision').innerText = s['REMARKS'] || '---';
+            document.getElementById('resPercentage').innerText = (s['TOTAL PERCENTAGE'] || '0') + '%';
+        }
+
+        // PDF Generation function using html2pdf.js
+        function downloadPDF() {
+            const element = document.getElementById('marksheet-capture');
+            const studentName = document.getElementById('resName').innerText;
+            const rollNo = document.getElementById('resRollNo').innerText;
+            
+            const opt = {
+                margin:       0,
+                filename:     `BSEB_Result_2026_${rollNo}_${studentName.replace(/ /g, '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 }, // Higher scale for better quality
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // New Promise-based usage:
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
+</body>
+</html>
