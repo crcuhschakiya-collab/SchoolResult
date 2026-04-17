@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UHS Chakiya - Fee Receipt</title>
+    <style>
+        :root {
+            --receipt-bg: #fff9c4;
+            --border-color: #000;
+        }
+
+
+        body {
+    margin: 0;
+    padding: 0;
+}
+
+        .main-content { font-family: 'Arial', sans-serif; margin: 0; padding: 20px; background: #f0f0f0; }
+        
+        #input-section { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .fee-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; border-top: 1px solid #ccc; padding-top: 20px; }
+        .input-group { display: flex; flex-direction: column; }
+        label { font-weight: bold; font-size: 13px; margin-bottom: 4px; color: #333; }
+        input, select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        button { background: #1a237e; color: white; padding: 12px 30px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 20px; }
+
+        #receipt-section { display: none; }
+        
+      @media print {
+    /* 1. Hide the header placeholder and the input section */
+    #header-placeholder, 
+    #input-section, 
+     #footer-placeholder, 
+    .no-print { 
+        display: none !important; 
+    }
+
+    /* 2. Ensure the receipt section is visible */
+    #receipt-section { 
+        display: block !important; 
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+                .a4-page { 
+                display: flex; 
+                justify-content: center; 
+                align-items: center;
+                gap: 15mm; 
+                height: 100vh;
+                padding: 10mm;
+                box-sizing: border-box;
+                page-break-after: always;
+            }
+
+    /* 3. Reset body padding for print so the receipt touches the edges */
+    body { 
+        background: white; 
+        padding: 0; 
+        margin: 0; 
+    }
+
+    /* 4. Page settings */
+    @page { 
+        size: A4 landscape; 
+        margin: 0; 
+    }
+}
+
+        .a4-page { display: flex; justify-content: center; gap: 30px; padding: 4px; }
+        
+        .receipt-card {
+            background-color: var(--receipt-bg);
+            border: 2px solid var(--border-color);
+            padding: 10px;
+            box-sizing: border-box;
+            position: relative;
+            height: 750px; 
+            width: 475px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header { text-align: center; line-height: 1.1; margin-bottom: 10px; }
+        .header h1 { margin: 0; font-size: 22px; font-weight: 900; }
+        .header p { margin: 2px 0; font-size: 13px; font-weight: bold; }
+
+        .top-fields { margin-top: 5px; font-size: 13px; font-weight: bold; }
+        .row-flex { display: flex; justify-content: space-between; margin-bottom: 6px; align-items: baseline; }
+        .dotted-line { border-bottom: 1.5px dotted #000; flex-grow: 1; margin: 0 5px; min-height: 16px; display: inline-block; text-align: center; font-weight: normal; }
+
+        .fee-table { width: 100%; border-collapse: collapse; margin-top: 5px; table-layout: fixed; }
+        .fee-table th, .fee-table td { border: 1.2px solid var(--border-color); padding: 3px 2px; font-size: 10px; }
+        
+        .vert-label { writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; font-weight: bold; width: 22px; font-size: 11px; }
+        .col-item { text-align: left; padding-left: 8px; }
+        .col-rs { width: 55px; text-align: center; font-weight: bold; font-size: 12px; }
+        .col-ps { width: 30px; text-align: center; }
+
+        .total-box { font-weight: bold; background: rgba(0,0,0,0.03); }
+        .total-text { text-align: right; padding-right: 10px; font-weight: bold; }
+
+        .footer { margin-top: auto; padding-top: 15px; display: flex; justify-content: space-between; font-weight: bold; font-size: 13px; }
+        .copy-type { position: absolute; top: 5px; right: 8px; font-size: 9px; font-style: italic; color: #444; border: 0.5px solid #000; padding: 1px 3px; }
+
+        /* Tabs Styling */
+        .tab-container { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .tab { padding: 10px 20px; cursor: pointer; border-radius: 4px; font-weight: bold; background: #eee; }
+        .tab.active { background: #1a237e; color: white; }
+    </style>
+</head>
+
+<body>
+
+
+<div id="header-placeholder"></div>
+
+<div id="main-content">
+
+
+<div id="input-section">
+    <h2 style="text-align:center; margin-top:0">UHS Chakiya Receipt Generator</h2>
+    
+    <div class="tab-container">
+        <div id="tabSingle" class="tab active" onclick="setMode('single')">Single Receipt</div>
+        <div id="tabBulk" class="tab" onclick="setMode('bulk')">Bulk Generation</div>
+    </div>
+
+    <div id="bulk-inputs" style="display:none; margin-bottom: 20px; padding: 15px; background: #e8eaf6; border-radius: 4px;">
+        <label>Upload JSON Data File:</label>
+        <input type="file" id="jsonFile" accept=".json" style="margin-top:10px">
+    </div>
+
+    <div class="form-grid">
+        <div class="input-group" id="serialGrp"><label>क्रम संख्या</label><input type="text" id="serialNo" value="017"></div>
+        <div class="input-group"><label>दिनांक</label><input type="date" id="receiptDate"></div>
+        <div class="input-group" id="nameGrp"><label>नाम (Name)</label><input type="text" id="stuName" placeholder="विद्यार्थी का नाम"></div>
+        <div class="input-group">
+            <label>वर्ग (Class)</label>
+            <select id="stuClass" onchange="loadFeeInputs()">
+                <option value="9th">9th</option>
+                <option value="10th">10th</option>
+                <option value="11th-Arts">11th Arts</option>
+                <option value="11th-Science">11th Science</option>
+                <option value="12th-Arts">12th Arts</option>
+                <option value="12th-Science">12th Science</option>
+            </select>
+        </div>
+        <div class="input-group" id="rollGrp"><label>क्रमांक (Roll No)</label><input type="text" id="rollNo" placeholder="Roll No"></div>
+        <div class="input-group">
+            <label>माह (Month)</label>
+            <select id="feeMonth">
+                <option value="January">January</option><option value="February">February</option>
+                <option value="March">March</option><option value="April">April</option>
+                <option value="May">May</option><option value="June">June</option>
+                <option value="July">July</option><option value="August">August</option>
+                <option value="September">September</option><option value="October">October</option>
+                <option value="November">November</option><option value="December">December</option>
+            </select>
+        </div>
+        <div class="input-group" id="catGrp">
+            <label>कोटि (Category)</label>
+            <select id="stuCat" onchange="applyExemption()">
+                <option value="General">General</option>
+                <option value="BC/EBC">BC/EBC</option>
+                <option value="SC/ST">SC/ST</option>
+                <option value="Minority">Minority</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="fee-grid" id="feeInputs"></div>
+    <button onclick="generate()">Generate Receipt(s)</button>
+</div>
+
+<div id="receipt-section">
+    <div class="no-print" style="padding: 10px; text-align: center; background: #222;">
+        <button onclick="window.print()">Print A4 Landscape</button>
+        <button onclick="location.reload()" style="background:#b71c1c">Edit Data</button>
+    </div>
+    <div id="printArea"></div>
+</div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script>
+   let currentMode = 'single';
+    const feeStructures = {
+        '9th': [ { id: 's1', label: '1. नामांकन शुल्क', val: 50, cat: 's' }, { id: 's2', label: '2. शिक्षण शुल्क', val: 0, cat: 's' }, { id: 's3', label: '3. विद्यालय विकास शुल्क', val: 80, cat: 's' }, { id: 's4', label: '4. स्थानांतरण शुल्क', val: 10, cat: 's' }, { id: 'k1', label: '1. विज्ञान शुल्क', val: 10, cat: 'k' }, { id: 'k2', label: '2. अनुपस्थिति दण्ड', val: 0, cat: 'k' }, { id: 'k3', label: '3. विलम्ब दण्ड शुल्क', val: 0, cat: 'k' }, { id: 'k4', label: '4. पलायन शुल्क', val: 0, cat: 'k' }, { id: 'k5', label: '5. पुनः प्रवेश शुल्क', val: 0, cat: 'k' }, { id: 'k6', label: '6. क्रीड़ा शुल्क', val: 20, cat: 'k' }, { id: 'k7', label: '7. मनोरंजन शुल्क', val: 20, cat: 'k' }, { id: 'k8', label: '8. निर्धन छात्र कोष', val: 10, cat: 'k' }, { id: 'k9', label: '9. विद्युत शुल्क', val: 20, cat: 'k' }, { id: 'k10', label: '10. पुस्तकालय शुल्क', val: 0, cat: 'k' }, { id: 'k11', label: '11. विद्यालय रख-रखाव', val: 50, cat: 'k' }, { id: 'k12', label: '12. परिचय पत्र', val: 20, cat: 'k' }, { id: 'k13', label: '13. बालचर', val: 10, cat: 'k' }, { id: 'k14', label: '14. फार्म/प्रोस्पेक्टस', val: 0, cat: 'k' }, { id: 'k15', label: '15. परीक्षा शुल्क', val: 120, cat: 'k' } ],
+        '10th': [ { id: 's1', label: '1. नामांकन शुल्क', val: 0, cat: 's' }, { id: 's2', label: '2. शिक्षण शुल्क', val: 0, cat: 's' }, { id: 's3', label: '3. विद्यालय विकास शुल्क', val: 80, cat: 's' }, { id: 's4', label: '4. स्थानांतरण शुल्क', val: 0, cat: 's' }, { id: 'k1', label: '1. विज्ञान शुल्क', val: 10, cat: 'k' }, { id: 'k2', label: '2. अनुपस्थिति दण्ड', val: 0, cat: 'k' }, { id: 'k3', label: '3. विलम्ब दण्ड शुल्क', val: 0, cat: 'k' }, { id: 'k4', label: '4. पलायन शुल्क', val: 0, cat: 'k' }, { id: 'k5', label: '5. पुनः प्रवेश शुल्क', val: 0, cat: 'k' }, { id: 'k6', label: '6. क्रीड़ा शुल्क', val: 20, cat: 'k' }, { id: 'k7', label: '7. मनोरंजन शुल्क', val: 20, cat: 'k' }, { id: 'k8', label: '8. निर्धन छात्र कोष', val: 10, cat: 'k' }, { id: 'k9', label: '9. विद्युत शुल्क', val: 20, cat: 'k' }, { id: 'k10', label: '10. पुस्तकालय शुल्क', val: 0, cat: 'k' }, { id: 'k11', label: '11. विद्यालय रख-रखाव', val: 50, cat: 'k' }, { id: 'k12', label: '12. परिचय पत्र', val: 0, cat: 'k' }, { id: 'k13', label: '13. बालचर', val: 10, cat: 'k' }, { id: 'k14', label: '14. फार्म/प्रोस्पेक्टस', val: 0, cat: 'k' }, { id: 'k15', label: '15. परीक्षा शुल्क', val: 120, cat: 'k' } ],
+        '11th-Arts': [ { id: 's1', label: '1. नामांकन शुल्क', val: 50, cat: 's' }, { id: 's2', label: '2. शिक्षण शुल्क', val: 180, cat: 's' }, { id: 's3', label: '3. विद्यालय विकास शुल्क', val: 200, cat: 's' }, { id: 's4', label: '4. स्थानांतरण शुल्क', val: 20, cat: 's' }, { id: 'k1', label: '1. विज्ञान शुल्क', val: 0, cat: 'k' }, { id: 'k2', label: '2. अनुपस्थिति दण्ड', val: 0, cat: 'k' }, { id: 'k3', label: '3. विलम्ब दण्ड शुल्क', val: 0, cat: 'k' }, { id: 'k4', label: '4. पलायन शुल्क', val: 0, cat: 'k' }, { id: 'k5', label: '5. पुनः प्रवेश शुल्क', val: 0, cat: 'k' }, { id: 'k6', label: '6. क्रीड़ा शुल्क', val: 30, cat: 'k' }, { id: 'k7', label: '7. मनोरंजन शुल्क', val: 60, cat: 'k' }, { id: 'k8', label: '8. निर्धन छात्र कोष', val: 10, cat: 'k' }, { id: 'k9', label: '9. विद्युत शुल्क', val: 80, cat: 'k' }, { id: 'k10', label: '10. पुस्तकालय शुल्क', val: 20, cat: 'k' }, { id: 'k11', label: '11. विद्यालय रख-रखाव', val: 150, cat: 'k' }, { id: 'k12', label: '12. परिचय पत्र', val: 20, cat: 'k' }, { id: 'k13', label: '13. बालचर', val: 0, cat: 'k' }, { id: 'k14', label: '14. फार्म/प्रोस्पेक्टस', val: 0, cat: 'k' }, { id: 'k15', label: '15. परीक्षा शुल्क', val: 120, cat: 'k' } ],
+        '11th-Science': [ { id: 's1', label: '1. नामांकन शुल्क', val: 50, cat: 's' }, { id: 's2', label: '2. शिक्षण शुल्क', val: 240, cat: 's' }, { id: 's3', label: '3. विद्यालय विकास शुल्क', val: 200, cat: 's' }, { id: 's4', label: '4. स्थानांतरण शुल्क', val: 20, cat: 's' }, { id: 'k1', label: '1. विज्ञान शुल्क', val: 200, cat: 'k' }, { id: 'k2', label: '2. अनुपस्थिति दण्ड', val: 0, cat: 'k' }, { id: 'k3', label: '3. विलम्ब दण्ड शुल्क', val: 0, cat: 'k' }, { id: 'k4', label: '4. पलायन शुल्क', val: 0, cat: 'k' }, { id: 'k5', label: '5. पुनः प्रवेश शुल्क', val: 0, cat: 'k' }, { id: 'k6', label: '6. क्रीड़ा शुल्क', val: 30, cat: 'k' }, { id: 'k7', label: '7. मनोरंजन शुल्क', val: 60, cat: 'k' }, { id: 'k8', label: '8. निर्धन छात्र कोष', val: 10, cat: 'k' }, { id: 'k9', label: '9. विद्युत शुल्क', val: 80, cat: 'k' }, { id: 'k10', label: '10. पुस्तकालय शुल्क', val: 20, cat: 'k' }, { id: 'k11', label: '11. विद्यालय रख-रखाव', val: 150, cat: 'k' }, { id: 'k12', label: '12. परिचय पत्र', val: 20, cat: 'k' }, { id: 'k13', label: '13. बालचर', val: 0, cat: 'k' }, { id: 'k14', label: '14. फार्म/प्रोस्पेक्टस', val: 0, cat: 'k' }, { id: 'k15', label: '15. परीक्षा शुल्क', val: 120, cat: 'k' } ],
+        '12th-Arts': [ { id: 's1', label: '1. नामांकन शुल्क', val: 0, cat: 's' }, { id: 's2', label: '2. शिक्षण शुल्क', val: 180, cat: 's' }, { id: 's3', label: '3. विद्यालय विकास शुल्क', val: 200, cat: 's' }, { id: 's4', label: '4. स्थानांतरण शुल्क', val: 0, cat: 's' }, { id: 'k1', label: '1. विज्ञान शुल्क', val: 0, cat: 'k' }, { id: 'k2', label: '2. अनुपस्थिति दण्ड', val: 0, cat: 'k' }, { id: 'k3', label: '3. विलम्ब दण्ड शुल्क', val: 0, cat: 'k' }, { id: 'k4', label: '4. पलायन शुल्क', val: 0, cat: 'k' }, { id: 'k5', label: '5. पुनः प्रवेश शुल्क', val: 0, cat: 'k' }, { id: 'k6', label: '6. क्रीड़ा शुल्क', val: 30, cat: 'k' }, { id: 'k7', label: '7. मनोरंजन शुल्क', val: 60, cat: 'k' }, { id: 'k8', label: '8. निर्धन छात्र कोष', val: 10, cat: 'k' }, { id: 'k9', label: '9. विद्युत शुल्क', val: 80, cat: 'k' }, { id: 'k10', label: '10. पुस्तकालय शुल्क', val: 20, cat: 'k' }, { id: 'k11', label: '11. विद्यालय रख-रखाव', val: 150, cat: 'k' }, { id: 'k12', label: '12. परिचय पत्र', val: 0, cat: 'k' }, { id: 'k13', label: '13. बालचर', val: 0, cat: 'k' }, { id: 'k14', label: '14. फार्म/प्रोस्पेक्टस', val: 0, cat: 'k' }, { id: 'k15', label: '15. परीक्षा शुल्क', val: 120, cat: 'k' } ],
+        '12th-Science': [ { id: 's1', label: '1. नामांकन शुल्क', val: 0, cat: 's' }, { id: 's2', label: '2. शिक्षण शुल्क', val: 240, cat: 's' }, { id: 's3', label: '3. विद्यालय विकास शुल्क', val: 200, cat: 's' }, { id: 's4', label: '4. स्थानांतरण शुल्क', val: 0, cat: 's' }, { id: 'k1', label: '1. विज्ञान शुल्क', val: 200, cat: 'k' }, { id: 'k2', label: '2. अनुपस्थिति दण्ड', val: 0, cat: 'k' }, { id: 'k3', label: '3. विलम्ब दण्ड शुल्क', val: 0, cat: 'k' }, { id: 'k4', label: '4. पलायन शुल्क', val: 0, cat: 'k' }, { id: 'k5', label: '5. पुनः प्रवेश शुल्क', val: 0, cat: 'k' }, { id: 'k6', label: '6. क्रीड़ा शुल्क', val: 30, cat: 'k' }, { id: 'k7', label: '7. मनोरंजन शुल्क', val: 60, cat: 'k' }, { id: 'k8', label: '8. निर्धन छात्र कोष', val: 10, cat: 'k' }, { id: 'k9', label: '9. विद्युत शुल्क', val: 80, cat: 'k' }, { id: 'k10', label: '10. पुस्तकालय शुल्क', val: 20, cat: 'k' }, { id: 'k11', label: '11. विद्यालय रख-रखाव', val: 150, cat: 'k' }, { id: 'k12', label: '12. परिचय पत्र', val: 0, cat: 'k' }, { id: 'k13', label: '13. बालचर', val: 0, cat: 'k' }, { id: 'k14', label: '14. फार्म/प्रोस्पेक्टस', val: 0, cat: 'k' }, { id: 'k15', label: '15. परीक्षा शुल्क', val: 120, cat: 'k' } ]
+    };
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('tabSingle').className = mode === 'single' ? 'tab active' : 'tab';
+        document.getElementById('tabBulk').className = mode === 'bulk' ? 'tab active' : 'tab';
+        document.getElementById('bulk-inputs').style.display = mode === 'bulk' ? 'block' : 'none';
+        
+        const manualFields = ['serialGrp', 'nameGrp', 'rollGrp', 'catGrp'];
+        manualFields.forEach(id => {
+            document.getElementById(id).style.visibility = mode === 'bulk' ? 'hidden' : 'visible';
+        });
+    }
+
+    function loadFeeInputs() {
+        const selectedCls = document.getElementById('stuClass').value;
+        const fees = feeStructures[selectedCls];
+        const container = document.getElementById('feeInputs');
+        container.innerHTML = '';
+        fees.forEach(f => {
+            container.innerHTML += `<div class="input-group"><label>${f.label}</label><input type="number" id="${f.id}" value="${f.val}"></div>`;
+        });
+        applyExemption();
+    }
+
+    function applyExemption() {
+        const cat = document.getElementById('stuCat').value;
+        const cls = document.getElementById('stuClass').value;
+        const s2Input = document.getElementById('s2');
+        const s3Input = document.getElementById('s3');
+        if (cat === 'SC/ST') {
+            if (s2Input) s2Input.value = 0;
+            if (s3Input) s3Input.value = 0;
+        } else {
+            const fees = feeStructures[cls];
+            const s2Default = fees.find(f => f.id === 's2');
+            const s3Default = fees.find(f => f.id === 's3');
+            if (s2Input && s2Default) s2Input.value = s2Default.val;
+            if (s3Input && s3Default) s3Input.value = s3Default.val;
+        }
+    }
+
+    window.onload = () => {
+
+
+         fetch('header.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('header-placeholder').innerHTML = data;
+        });
+
+                 fetch('footer.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('footer-placeholder').innerHTML = data;
+        });
+        const dateInput = document.getElementById('receiptDate');
+        dateInput.valueAsDate = new Date();
+        dateInput.addEventListener('change', () => {
+            dateInput.setAttribute('data-changed', 'true');
+        });
+        loadFeeInputs();
+    };
+
+    async function generate() {
+        const datePicker = document.getElementById('receiptDate');
+        const manualDate = datePicker.value.split("-").reverse().join("-");
+        const cls = document.getElementById('stuClass').value;
+        const month = document.getElementById('feeMonth').value;
+        const isModified = datePicker.getAttribute('data-changed') === 'true';
+
+        let studentsToProcess = [];
+
+        if (currentMode === 'bulk') {
+            const fileInput = document.getElementById('jsonFile');
+            if (!fileInput.files[0]) return alert("Please select a JSON file first.");
+            
+            try {
+                const text = await fileInput.files[0].text();
+                const json = JSON.parse(text);
+                const rawData = json.data || json; 
+
+                studentsToProcess = rawData.map(s => {
+                    let admissionDate = s["ADMISSION DATE"];
+                    let finalDate;
+
+                    if (isModified) {
+                        finalDate = manualDate;
+                    } else {
+                        finalDate = (admissionDate && admissionDate !== "") ? admissionDate.replace(/\./g, '-') : manualDate;
+                    }
+
+                    return {
+                        serial: s.UNIQUE_ID || s["SL NO"] || "---",
+                        name: s.NAME,
+                        roll: s["ADM. NO"],
+                        cat: (s.CATEGORY === "EBC" || s.CATEGORY === "BC") ? "BC/EBC" : s.CATEGORY,
+                        date: finalDate,
+                        cls: cls,
+                        month: month
+                    };
+                });
+            } catch (e) {
+                console.error(e);
+                return alert("Error reading JSON. Ensure the file format is correct.");
+            }
+        } else {
+            studentsToProcess = [{
+                serial: document.getElementById('serialNo').value,
+                name: document.getElementById('stuName').value,
+                roll: document.getElementById('rollNo').value,
+                cat: document.getElementById('stuCat').value,
+                date: manualDate,
+                cls: cls,
+                month: month
+            }];
+        }
+
+        renderReceipts(studentsToProcess);
+    }
+
+    function renderReceipts(studentList) {
+        let htmlContent = '';
+        const fees = feeStructures[document.getElementById('stuClass').value];
+
+        studentList.forEach(student => {
+            let sTotal = 0, kTotal = 0;
+            const studentFees = fees.map(f => {
+                let val = parseFloat(document.getElementById(f.id).value) || 0;
+                if (student.cat === 'SC/ST' && (f.id === 's2' || f.id === 's3')) val = 0;
+                if(f.cat === 's') sTotal += val; else kTotal += val;
+                return {...f, currentVal: val};
+            });
+
+            const renderRows = (catType) => {
+                let list = studentFees.filter(f => f.cat === catType);
+                return list.map((f, i) => `
+                    <tr>
+                        ${i === 0 ? `<td rowspan="${list.length}" class="vert-label">${catType === 's' ? 'सामान्य कोष' : 'छात्र कोष'}</td>` : ''}
+                        <td class="col-item">${f.label}</td>
+                        <td class="col-rs">${f.currentVal}</td><td class="col-ps">00</td>
+                    </tr>`).join('');
+            };
+
+            const createTemplate = (type) => `
+                <div class="receipt-card">
+                    <div class="copy-type">${type} COPY</div>
+                    <div class="header">
+                        <h1>उच्च माध्यमिक विद्यालय चकिया</h1>
+                        <p>ग्राम-पुपरी, प्रखण्ड-कुढ़नी (मुजफ्फरपुर)</p>
+                    </div>
+                    <div class="top-fields">
+                        <div class="row-flex">
+                            <span>क्रम संख्या <b style="color:red; font-size:18px; margin-left:5px;">${student.serial}</b></span> 
+                            <span>दिनांक <span style="font-weight:normal">${student.date}</span></span>
+                        </div>
+                        <div class="row-flex">
+                            नाम <span class="dotted-line">${student.name}</span> 
+                            कोटि <span class="dotted-line" style="flex-grow:0; width:50px">${student.cat}</span>
+                            वर्ग <span class="dotted-line" style="flex-grow:0; width:100px">${student.cls}</span>
+                        </div>
+                        <div class="row-flex" style="font-size:12px; margin-top:5px;">
+                            क्रमांक <span class="dotted-line" style="width:40px; flex-grow:0">${student.roll}</span> 
+                            से रू० <span class="dotted-line" style="width:50px; flex-grow:0">${sTotal + kTotal}</span> 
+                            माह <span class="dotted-line">${student.month}</span> का पाया।
+                        </div>
+                    </div>
+                    <table class="fee-table">
+                        <tr><th style="width:25px"></th><th>विवरणी</th><th style="width:55px">रूपये</th><th style="width:30px">पै०</th></tr>
+                        ${renderRows('s')}
+                        <tr class="total-box"><td colspan="2" class="total-text">सामान्य कोष का योग</td><td>${sTotal}</td><td>00</td></tr>
+                        ${renderRows('k')}
+                        <tr class="total-box"><td colspan="2" class="total-text">छात्र कोष का योग</td><td>${kTotal}</td><td>00</td></tr>
+                        <tr class="total-box" style="font-size:14px; border-top:2px solid #000;"><td colspan="2" class="total-text">कुल योग-</td><td>${sTotal + kTotal}</td><td>00</td></tr>
+                    </table>
+                    <div class="footer">
+                        <span>प्राप्ति तिथि .................</span>
+                        <span>ह० संग्रहकर्त्ता</span>
+                    </div>
+                </div>`;
+
+            htmlContent += `<div class="a4-page">${createTemplate('OFFICE')}${createTemplate('STUDENT')}</div>`;
+        });
+
+        document.getElementById('printArea').innerHTML = htmlContent;
+        document.getElementById('input-section').style.display = 'none';
+        document.getElementById('receipt-section').style.display = 'block';
+
+
+    }
+</script>
+</body>
+</html>

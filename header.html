@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UHS Chakiya - Digital Services</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #1a237e;
+            --accent-orange: #fb8c00;
+            --bg-gray: #f4f7f6;
+            --text-dark: #333;
+        }
+
+        .bodyhead {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-gray);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+         /* //   min-height: 100vh; */
+        }
+
+        /* HEADER STYLING */
+        header {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 1rem 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .header-main {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo-circle {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--accent-orange);
+        }
+
+        .school-info h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .school-info p {
+            margin: 2px 0 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* MAIN CONTENT - THE LIST */
+        main {
+            flex: 1;
+            max-width: 1000px;
+            margin: 40px auto;
+            width: 90%;
+        }
+
+        .page-title {
+            border-left: 5px solid var(--accent-orange);
+            padding-left: 15px;
+            margin-bottom: 30px;
+        }
+
+        .service-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .service-item {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            border: 1px solid #e0e0e0;
+        }
+
+        .service-item:hover {
+            transform: translateX(10px);
+            border-color: var(--primary-blue);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .service-meta {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            background: #e8eaf6;
+            color: var(--primary-blue);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .service-text h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--primary-blue);
+        }
+
+        .service-text p {
+            margin: 5px 0 0;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .go-icon {
+            color: #ccc;
+            font-size: 1.2rem;
+        }
+
+        .service-item:hover .go-icon {
+            color: var(--accent-orange);
+        }
+
+        /* FOOTER STYLING */
+        footer {
+            background: #222;
+            color: #bbb;
+            padding: 30px 5%;
+            text-align: center;
+            font-size: 0.9rem;
+            border-top: 4px solid var(--accent-orange);
+        }
+
+        .footer-links {
+            margin-bottom: 15px;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-orange);
+        }
+
+        @media (max-width: 600px) {
+            header { flex-direction: column; text-align: center; }
+            .header-main { flex-direction: column; }
+            .service-item { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+   <div class="bodyhead">
+    <header >
+        <div class="header-main">
+            <div class="logo-circle">
+                <i class="fas fa-university" style="color: var(--primary-blue); font-size: 30px;"></i>
+            </div>
+            <div class="school-info">
+                <h1>उच्च माध्यमिक विद्यालय चकिया</h1>
+                <p>पुपरी, कुढ़नी, मुजफ्फरपुर | Affiliated to BSEB</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <i class="fas fa-bars" style="font-size: 24px; cursor: pointer;"></i>
+        </div>
+    </header>
+    </div>  
+</body>
+</html>
