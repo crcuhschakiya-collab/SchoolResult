@@ -477,7 +477,7 @@
                 let list = studentFees.filter(f => f.cat === catType);
                 return list.map((f, i) => `
                     <tr>
-                        ${i === 0 ? `<td rowspan="${list.length}" class="vert-label">${catType === 's' ? 'सामान्य कोष' : 'छात्र कोष'}</td>` : ''}
+                        ${i === 0 ? `<td rowspan="${list.length}" class="vert-label">${catType === 's' ? 'विकाश कोष' : 'छात्र कोष'}</td>` : ''}
                         <td class="col-item">${f.label}</td>
                         <td class="col-rs">${f.currentVal}</td><td class="col-ps">00</td>
                     </tr>`).join('');
@@ -509,7 +509,7 @@
                     <table class="fee-table">
                         <tr><th style="width:25px"></th><th>विवरणी</th><th style="width:55px">रूपये</th><th style="width:30px">पै०</th></tr>
                         ${renderRows('s')}
-                        <tr class="total-box"><td colspan="2" class="total-text">सामान्य कोष का योग</td><td>${sTotal}</td><td>00</td></tr>
+                        <tr class="total-box"><td colspan="2" class="total-text">विकाश कोष का योग</td><td>${sTotal}</td><td>00</td></tr>
                         ${renderRows('k')}
                         <tr class="total-box"><td colspan="2" class="total-text">छात्र कोष का योग</td><td>${kTotal}</td><td>00</td></tr>
                         <tr class="total-box" style="font-size:14px; border-top:2px solid #000;"><td colspan="2" class="total-text">कुल योग-</td><td>${sTotal + kTotal}</td><td>00</td></tr>
